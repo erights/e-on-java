@@ -4,9 +4,8 @@
 # @author Mark S. Miller
 
 # Sets OSDIR to a name to be used for subdirectories containing files
-# specific to the current OS (including window system variations),
-# such as "win32" or "linux-motif".  For example, an swt.jar file is
-# specific to a given OSDIR. 
+# specific to the current OS, such as "win32" or "linux".  For
+# example, an swt.jar file is specific to a given OSDIR.
 
 # Sets MACHDIR to a name to be used for subdirectories containing
 # files specific to a given machine architecture (ie, instruction
@@ -23,7 +22,7 @@ endif
 # In alphabetical order by the OSDIR value
 ifndef OSDIR
  ifeq "$(findstring AIX,$(UNAME_SYSNAME))" "AIX"
-  OSDIR=aix-motif
+  OSDIR=aix
  endif
 endif
 ifndef OSDIR
@@ -36,9 +35,9 @@ ifndef OSDIR
 endif
 ifndef OSDIR
  ifeq "$(findstring Linux,$(UNAME_SYSNAME))" "Linux"
-  # Linux defaults to the OSDIR "linux-motif", but you can try
-  # "linux-gtk" if you wish.
-  OSDIR=linux-motif
+  # Linux defaults to the OSDIR "linux", but you can try
+  # "linux" if you wish.
+  OSDIR=linux
  endif
 endif
 ifndef OSDIR
@@ -52,18 +51,13 @@ ifndef OSDIR
  endif
 endif
 ifndef OSDIR
- ifeq "$(findstring QNX,$(UNAME_SYSNAME))" "QNX"
-  OSDIR=qnx
- endif
-endif
-ifndef OSDIR
  ifeq "$(findstring Solaris,$(UNAME_SYSNAME))" "Solaris"
-  OSDIR=solaris-motif
+  OSDIR=solaris
  endif
 endif
 ifndef OSDIR
  ifeq "$(findstring SunOS,$(UNAME_SYSNAME))" "SunOS"
-  OSDIR=solaris-motif
+  OSDIR=solaris
  endif
 endif
 ifndef OSDIR

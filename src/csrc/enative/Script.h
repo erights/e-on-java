@@ -82,7 +82,7 @@ class DataWord {
      * constructor, we can't do better, since a DataWord by itself
      * doesn't know which type to use.
      */
-    inline DataWord(DataWord& other) :
+    inline DataWord(DataWord const& other) :
         word(other.word)
     {}
 };
@@ -105,6 +105,14 @@ class Ref  {
     inline Ref(Script *script, DataWord data) :
         myScript(script),
         myData(data)
+    {}
+
+    /**
+     * Copy constructor
+     */
+    inline Ref(Ref const& ref) :
+        myScript(ref.myScript),
+	myData(ref.myData)
     {}
 
     /**

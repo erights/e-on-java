@@ -9,7 +9,7 @@ E is a scripting language designed for writing secure distributed programs.</des
   <feed-for interface='http://repo.roscidus.com/e/e-core'/>
   <needs-terminal/>
   <group main='rune'>
-    <implementation id=".." version="0.9.3-4-post">
+    <implementation id=".." version="0.9.4-2-post">
       <!--
       Note: 0launch < 0.51 will use the 'main' attribute instead of this
       <command>. The <command> alternative is needed for Windows.
