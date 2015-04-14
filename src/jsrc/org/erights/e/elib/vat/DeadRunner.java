@@ -56,7 +56,7 @@ final class DeadRunner extends Runner {
     /**
      * @return false, since a DeadRunner is never current.
      */
-    protected boolean isCurrent() {
+    public boolean isCurrent() {
         return false;
     }
 

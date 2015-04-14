@@ -162,7 +162,7 @@ final class SWTRunner extends Runner implements Runnable {
     /**
      *
      */
-    protected boolean isCurrent() {
+    public boolean isCurrent() {
         return Thread.currentThread() == myMainThread;
     }
 

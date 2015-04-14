@@ -148,7 +148,7 @@ final class HeadlessRunner extends Runner implements Runnable {
     /**
      *
      */
-    protected boolean isCurrent() {
+    public boolean isCurrent() {
         return Thread.currentThread() == myOptThread;
     }
 

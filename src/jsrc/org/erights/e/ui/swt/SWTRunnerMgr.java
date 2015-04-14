@@ -34,6 +34,11 @@ public class SWTRunnerMgr implements RunnerMgr {
      * returns null.
      */
     public Runner getOptCurrentRunner() {
-        return null;
+        Runner runner = SWTRunner.getDefault();
+        if (runner.isCurrent()) {
+            return runner;
+        } else {
+            return null;
+        }
     }
 }

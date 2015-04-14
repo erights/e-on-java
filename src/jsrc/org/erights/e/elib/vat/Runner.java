@@ -369,7 +369,7 @@ public abstract class Runner {
      * <tt>r.isCurrent()</tt> implies <tt>{@link Runner#getCurrentRunner()} ==
      * r</tt>.
      */
-    protected abstract boolean isCurrent();
+    public abstract boolean isCurrent();
 
     /**
      * If not {@link #isCurrent()}, throw an exception

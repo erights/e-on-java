@@ -119,7 +119,7 @@ final class AWTRunner extends Runner {
     /**
      *
      */
-    protected boolean isCurrent() {
+    public boolean isCurrent() {
         return EventQueue.isDispatchThread();
     }
 
