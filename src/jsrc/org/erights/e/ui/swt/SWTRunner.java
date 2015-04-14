@@ -9,6 +9,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.SWTException;
 import org.erights.e.develop.assertion.T;
 import org.erights.e.develop.trace.Trace;
+import org.erights.e.elang.interp.Rune;
 import org.erights.e.elib.vat.PendingEvent;
 import org.erights.e.elib.vat.Runner;
 import org.erights.e.elib.vat.RunnerThread;
@@ -33,16 +34,16 @@ final class SWTRunner extends Runner implements Runnable {
     static private SWTRunner THE_DEFAULT = null;
 
     /**
-     * The RunnerThread servicing this Runner's queue.
+     * The main thread servicing this Runner's queue.
      * <p/>
      * If we ever go orthogonal again, myThread must not be checkpointed. Ie,
      * it must be a DISALLOWED_FIELD or 'transient' or something.
      */
-    private final transient RunnerThread myThread;
+    private transient Thread myMainThread = null;
 
     /**
-     * Used to wait until the RunnerThread actually creates and initializes
-     * myDisplay.
+     * Used to wait until the main Thread actually creates and initializes
+     * myDisplay and myMainThread.
      */
     private final Object myLock = new Object();
 
@@ -58,10 +59,9 @@ final class SWTRunner extends Runner implements Runnable {
      *
      * @param optName is the name to give to the thread created.
      */
-    private SWTRunner(String optName) {
+    private SWTRunner() {
         super();
-        myThread = new RunnerThread(this, optName);
-        myThread.start();
+        Rune.runInMainThread(this);
         synchronized (myLock) {
             while (null == myDisplay) {
                 try {
@@ -104,7 +104,7 @@ final class SWTRunner extends Runner implements Runnable {
                 //SWTRunner with a non-null myDisplay.
                 //XXX Note that during this operation we will be holding two
                 //locks: OUR_LOCK and myLock.
-                THE_DEFAULT = new SWTRunner("Default SWT Vat");
+                THE_DEFAULT = new SWTRunner();
 
                 // XXX Happens too late to effect rune(["--version"])
                 System.setProperty("e.swtVersion", "" + SWT.getVersion());
@@ -114,18 +114,6 @@ final class SWTRunner extends Runner implements Runnable {
             }
             return THE_DEFAULT;
         }
-    }
-
-    /**
-     * Makes an SWTRunner managing a non-default Display.
-     * <p/>
-     * This should only be called once there is a default Display (as a result
-     * of {@link #getDefault()}). Non-default Displays are not supported by SWT
-     * on all platforms.
-     */
-    static Runner make(String name) {
-        T.notNull(THE_DEFAULT, "The default SWTRunner must be created first");
-        return new SWTRunner(name);
     }
 
     /**
@@ -161,31 +149,32 @@ final class SWTRunner extends Runner implements Runnable {
      *
      */
     protected void setPriority(int newPriority) {
-        myThread.setPriority(newPriority);
+        myMainThread.setPriority(newPriority);
     }
 
     /**
      *
      */
     protected void disturbEvent(Throwable t) {
-        myThread.stop(t);
+        myMainThread.stop(t);
     }
 
     /**
      *
      */
     protected boolean isCurrent() {
-        return Thread.currentThread() == myThread;
+        return Thread.currentThread() == myMainThread;
     }
 
     /**
-     * Called only by Thread.start().
+     * Called only by the main thread.
      * <p/>
      * (XXX It's a modularity bug for this to be public.)
      */
     public void run() {
         synchronized (myLock) {
             myDisplay = new Display();
+            myMainThread = Thread.currentThread();
             myLock.notifyAll();
         }
         while (!myDisplay.isDisposed()) {

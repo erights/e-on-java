@@ -18,6 +18,7 @@ import org.erights.e.elib.tables.ConstList;
 import org.erights.e.elib.tables.ConstMap;
 import org.erights.e.elib.tables.Memoizer;
 import org.erights.e.elib.util.OneArgFunc;
+import org.erights.e.elib.vat.SynchQueue;
 import org.erights.e.elib.vat.Vat;
 import org.erights.e.meta.java.io.FileGetter;
 import org.erights.e.meta.java.io.FileSugar;
@@ -47,6 +48,9 @@ public class Rune {
 
     static public final String SYN_PROPS_EXPLAIN =
       "(see " + SYN_PROPS_PATH_PREFIX + "default.txt)";
+    
+    static private final SynchQueue ToRunInMainThreadQ = 
+            new SynchQueue(Runnable.class);
 
     /**
      * prevent instantiation
@@ -307,6 +311,28 @@ public class Rune {
         }
         System.exit(-1);
     }
+    
+    
+    static public void runInMainThread(Runnable runnable) {
+        ToRunInMainThreadQ.enqueue(runnable);
+    }
+
+    /**
+     * On the Mac, SWT must be run on the main thread, and the main thread
+     * itself must not exit while the process is still live. 
+     * Note that the process will be killed when the Terminator does
+     * System.exit().
+     * 
+     * <p>If the enqueued Runnable's run() throws, this will be caught in 
+     * main() below which then calls errorExit(), which also calls 
+     * System.exit().
+     */
+    static private final void mainRunsQueuedRunnables() {
+        while (true) {
+            Runnable runnable = (Runnable)ToRunInMainThreadQ.dequeue();
+            runnable.run();
+        }
+    }
 
     /**
      *
@@ -378,17 +404,8 @@ public class Rune {
                 throw optNoStart;
             }
 
-            // For some reason, SWT on Mac OS X 10.5 doesn't work if
-            // the main thread exits. It looks like SWT should
-            // actually be *used* only from the main thread, but this
-            // seems sufficient, so we just don't let the main thread
-            // exit. (It will be killed when the Terminator does
-            // System.exit())
-            Object stub = new Object();
-            synchronized (stub) {
-                while (true) stub.wait();
-            }
-
+            mainRunsQueuedRunnables();
+            
         } catch (Throwable problem) {
             errorExit(errs, problem);
         }
